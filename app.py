@@ -2,6 +2,7 @@ from datetime import timedelta
 from flask import Flask, request, jsonify
 import firebase_admin
 from firebase_admin import credentials, messaging
+from collections import defaultdict
 
 from model import *
 
@@ -9,6 +10,7 @@ from model import *
 cred = credentials.Certificate('firebase_cred.json')
 fb_client = firebase_admin.initialize_app(cred)
 app = Flask(__name__)
+state = defaultdict(dict)
 
 
 @app.before_request
@@ -83,6 +85,17 @@ def status():
         return jsonify({'safe': False})
 
     return jsonify({'safe': True})
+
+
+@app.route('/lights/<cur_state>', methods=['POST'])
+def switch_lights(cur_state):
+    user_key = request.headers.get('Authorization')
+    user = User.get_or_none(User.user_key == user_key)
+    if not user:
+        return jsonify({'error': 'User not found'}), 404
+
+    state[user.user_key]['lights'] = cur_state == 'on'
+    return jsonify({'lights' : cur_state})
 
 
 @app.route('/add', methods=['POST'])
