@@ -3,3 +3,4 @@
 venv
 firebase_cred.json
 data.db
+__pycache__
