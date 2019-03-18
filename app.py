@@ -77,12 +77,12 @@ def status():
         return jsonify({'error': 'User not found'}), 404
 
     if not list(user.logs):
-        return jsonify({'safe': True})
+        return jsonify({'safe': True, 'room': ''})
 
     log = user.logs[-1]
 
     if log.created_at > (datetime.now() - timedelta(minutes=5)):
-        return jsonify({'safe': False})
+        return jsonify({'safe': False, 'room': log.device.room})
 
     return jsonify({'safe': True})
 
@@ -107,10 +107,25 @@ def add_device():
 
     device_id = request.json.get('device_id')
     room = request.json.get('room')
-    device = Device(device_id=device_id, room=room, user=user)
+    room_x = request.json.get('room_x', 3)
+    room_y = request.json.get('room_y', 3)
+    device = Device(device_id=device_id, room=room, user=user, room_x=room_x, room_y=room_y)
     device.save()
 
     return jsonify(device.to_dict())
+
+
+@app.route('/devices')
+def get_devices():
+    user_key = request.headers.get('Authorization')
+    user = User.get_or_none(User.user_key == user_key)
+    if not user:
+        return jsonify({'error': 'User not found'}), 404
+
+    devices = Device.select().where(Device.user == user)
+    devices = [d.to_dict() for d in devices]
+
+    return jsonify({"devices": devices})
 
 
 if __name__ == '__main__':
