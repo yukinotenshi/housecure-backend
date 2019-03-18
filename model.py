@@ -22,6 +22,8 @@ class User(BaseModel):
 class Device(BaseModel):
     user = pw.ForeignKeyField(User, backref='devices')
     room = pw.CharField()
+    room_x = pw.IntegerField(default=3)
+    room_y = pw.IntegerField(default=3)
     device_id = pw.CharField()
 
     def to_dict(self):

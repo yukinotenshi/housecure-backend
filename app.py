@@ -107,7 +107,9 @@ def add_device():
 
     device_id = request.json.get('device_id')
     room = request.json.get('room')
-    device = Device(device_id=device_id, room=room, user=user)
+    room_x = request.json.get('room_x', 3)
+    room_y = request.json.get('room_y', 3)
+    device = Device(device_id=device_id, room=room, user=user, room_x=room_x, room_y=room_y)
     device.save()
 
     return jsonify(device.to_dict())
