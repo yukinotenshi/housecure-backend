@@ -77,12 +77,12 @@ def status():
         return jsonify({'error': 'User not found'}), 404
 
     if not list(user.logs):
-        return jsonify({'safe': True})
+        return jsonify({'safe': True, 'room': ''})
 
     log = user.logs[-1]
 
     if log.created_at > (datetime.now() - timedelta(minutes=5)):
-        return jsonify({'safe': False})
+        return jsonify({'safe': False, 'room': log.device.room})
 
     return jsonify({'safe': True})
 
