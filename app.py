@@ -100,5 +100,18 @@ def add_device():
     return jsonify(device.to_dict())
 
 
+@app.route('/devices')
+def get_devices():
+    user_key = request.headers.get('Authorization')
+    user = User.get_or_none(User.user_key == user_key)
+    if not user:
+        return jsonify({'error': 'User not found'}), 404
+
+    devices = Device.select().where(Device.user == user)
+    devices = [d.to_dict() for d in devices]
+
+    return jsonify({"devices": devices})
+
+
 if __name__ == '__main__':
     app.run(host='0.0.0.0')

@@ -24,6 +24,9 @@ class Device(BaseModel):
     room = pw.CharField()
     device_id = pw.CharField()
 
+    def to_dict(self):
+        return model_to_dict(self)
+
 
 class Log(BaseModel):
     user = pw.ForeignKeyField(User, backref='logs')
