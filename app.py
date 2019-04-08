@@ -32,14 +32,16 @@ def home():
     return 'Serving Housecure Backend'
 
 
-@app.route('/notify/<key>', methods=['POST'])
+@app.route('/notify/<key>/', methods=['POST', 'GET'])
 def notify(key):
     device = Device.get_or_none(Device.device_id == key)
     if not device:
-        return '0'
+        return 'FAIL'
 
-    fcm_key = device.user.fcm_key
-    message = messaging.Message(
+    Log(device=device, user=device.user).save()
+    try:
+        fcm_key = device.user.fcm_key
+        message = messaging.Message(
         notification=messaging.Notification(
             title='Intruder alert in {}'.format(device.room),
             body='Someone entered {} on {}'.format(device.room, datetime.now()),
@@ -47,13 +49,13 @@ def notify(key):
         android=messaging.AndroidConfig(
             priority="high"
         ),
-        token=fcm_key,
-    )
+            token=fcm_key,
+	)
 
-    response = messaging.send(message)
-    Log(device=device, user=device.user).save()
-    print(response)
-    return '1'
+        response = messaging.send(message)
+    except:
+        pass
+    return 'SUCC'
 
 
 @app.route('/register', methods=['POST'])
